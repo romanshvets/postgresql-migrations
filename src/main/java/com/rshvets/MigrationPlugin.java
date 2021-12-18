@@ -1,8 +1,8 @@
-package com.hs;
+package com.rshvets;
 
-import com.hs.tasks.MigrationApplyTask;
-import com.hs.tasks.MigrationCheckTask;
-import com.hs.tasks.MigrationIndexTask;
+import com.rshvets.tasks.MigrationApplyTask;
+import com.rshvets.tasks.MigrationCheckTask;
+import com.rshvets.tasks.MigrationIndexTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskContainer;

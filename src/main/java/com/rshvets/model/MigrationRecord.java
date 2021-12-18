@@ -1,4 +1,4 @@
-package com.hs.model;
+package com.rshvets.model;
 
 import java.util.Date;
 

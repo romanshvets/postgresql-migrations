@@ -1,7 +1,7 @@
-package com.hs.tasks;
+package com.rshvets.tasks;
 
-import com.hs.MigrationPluginExtensionEntry;
-import com.hs.model.MigrationDiff;
+import com.rshvets.MigrationPluginExtensionEntry;
+import com.rshvets.model.MigrationDiff;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static com.hs.utils.MigrationUtils.*;
+import static com.rshvets.utils.MigrationUtils.*;
 import static java.lang.String.format;
 
 public class MigrationApplyTask extends DefaultTask {

@@ -1,4 +1,4 @@
-package com.hs;
+package com.rshvets;
 
 import java.io.File;
 import java.util.List;

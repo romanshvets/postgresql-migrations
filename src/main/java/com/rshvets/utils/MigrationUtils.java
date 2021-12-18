@@ -1,9 +1,9 @@
-package com.hs.utils;
+package com.rshvets.utils;
 
-import com.hs.MigrationPluginExtension;
-import com.hs.MigrationPluginExtensionEntry;
-import com.hs.model.MigrationDiff;
-import com.hs.model.MigrationRecord;
+import com.rshvets.MigrationPluginExtension;
+import com.rshvets.MigrationPluginExtensionEntry;
+import com.rshvets.model.MigrationDiff;
+import com.rshvets.model.MigrationRecord;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;

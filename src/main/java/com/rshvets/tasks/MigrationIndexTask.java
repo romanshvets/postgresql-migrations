@@ -1,16 +1,16 @@
-package com.hs.tasks;
+package com.rshvets.tasks;
 
-import com.hs.MigrationPluginExtensionEntry;
-import com.hs.model.MigrationDiff;
+import com.rshvets.MigrationPluginExtensionEntry;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
+import java.io.File;
 import java.sql.Connection;
 import java.util.List;
 
-import static com.hs.utils.MigrationUtils.*;
+import static com.rshvets.utils.MigrationUtils.*;
 
-public class MigrationCheckTask extends DefaultTask {
+public class MigrationIndexTask extends DefaultTask {
 
     @TaskAction
     public void run() throws Exception {
@@ -32,22 +32,22 @@ public class MigrationCheckTask extends DefaultTask {
                 final String schemaName = e.getMigrationSchema();
                 final String tableName = e.getMigrationTable();
 
-                if (!checkMigrationSchema(getLogger(), connection, schemaName, false))
+                if (!checkMigrationSchema(getLogger(), connection, schemaName, true))
                     return;
 
-                if (!checkMigrationTable(getLogger(), connection, schemaName, tableName, false))
+                if (!checkMigrationTable(getLogger(), connection, schemaName, tableName, true))
                     return;
 
-                MigrationDiff migrationDiff = getMigrationsDiff(connection, schemaName, tableName, getScripts(getProject()));
+                cleanMigrationTable(connection, schemaName, tableName);
 
-                String migrationDiffInfo = migrationDiffInfo(migrationDiff);
-                if (!isEmpty(migrationDiffInfo))
-                    getLogger().lifecycle(migrationDiffInfo);
+                for (File f : getScripts(getProject())) {
+                    String scriptName = f.getName();
+                    String scriptHash = getFileHash(f);
 
-                String migrationDiffErrors = migrationDiffErrors(migrationDiff);
-                if (!isEmpty(migrationDiffErrors))
-                    getLogger().error(migrationDiffErrors);
+                    insertMigrationRecord(connection, schemaName, tableName, scriptName, scriptHash);
+                }
             }
+
         }
     }
 }

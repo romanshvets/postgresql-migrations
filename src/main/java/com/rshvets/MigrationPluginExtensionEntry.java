@@ -1,4 +1,4 @@
-package com.hs;
+package com.rshvets;
 
 public class MigrationPluginExtensionEntry {
 

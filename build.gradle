@@ -1,6 +1,7 @@
 plugins {
     id 'java-gradle-plugin'
-    id 'com.gradle.plugin-publish' version '0.16.0'
+    id 'maven-publish'
+    id 'com.gradle.plugin-publish' version '0.18.0'
 }
 
 repositories {
@@ -11,13 +12,18 @@ dependencies {
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23'
 }
 
+tasks.withType(JavaCompile) {
+    options.encoding ='UTF-8'
+}
+
 version = '1.0.0'
+group = 'com.rshvets'
 
 gradlePlugin {
     plugins {
-        postgresql-migrations {
-            id = 'postgresql-migrations'
-            implementationClass = 'com.hs.MigrationPlugin'
+        pgMigrations {
+            id = 'com.rshvets.postgresql-migrations'
+            implementationClass = 'com.rshvets.MigrationPlugin'
         }
     }
 }
@@ -25,11 +31,11 @@ gradlePlugin {
 pluginBundle {
     website = 'https://github.com/romanshvets/postgresql-migrations'
     vcsUrl = 'https://github.com/romanshvets/postgresql-migrations'
-    description = 'Gradle plugin for migrations on PostgreSQL database'
-    tags = ['postgresql', 'migrations']
+    description = 'Gradle plugin for PostgreSQL database migrations'
+    tags = ['postgresql', 'migration', 'migrations']
 
     plugins {
-        postgresql-migrations {
+        pgMigrations {
             displayName = 'postgresql-migrations'
         }
     }

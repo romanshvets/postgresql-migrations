@@ -1,16 +1,16 @@
-package com.hs.tasks;
+package com.rshvets.tasks;
 
-import com.hs.MigrationPluginExtensionEntry;
+import com.rshvets.MigrationPluginExtensionEntry;
+import com.rshvets.model.MigrationDiff;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
-import java.io.File;
 import java.sql.Connection;
 import java.util.List;
 
-import static com.hs.utils.MigrationUtils.*;
+import static com.rshvets.utils.MigrationUtils.*;
 
-public class MigrationIndexTask extends DefaultTask {
+public class MigrationCheckTask extends DefaultTask {
 
     @TaskAction
     public void run() throws Exception {
@@ -32,22 +32,22 @@ public class MigrationIndexTask extends DefaultTask {
                 final String schemaName = e.getMigrationSchema();
                 final String tableName = e.getMigrationTable();
 
-                if (!checkMigrationSchema(getLogger(), connection, schemaName, true))
+                if (!checkMigrationSchema(getLogger(), connection, schemaName, false))
                     return;
 
-                if (!checkMigrationTable(getLogger(), connection, schemaName, tableName, true))
+                if (!checkMigrationTable(getLogger(), connection, schemaName, tableName, false))
                     return;
 
-                cleanMigrationTable(connection, schemaName, tableName);
+                MigrationDiff migrationDiff = getMigrationsDiff(connection, schemaName, tableName, getScripts(getProject()));
 
-                for (File f : getScripts(getProject())) {
-                    String scriptName = f.getName();
-                    String scriptHash = getFileHash(f);
+                String migrationDiffInfo = migrationDiffInfo(migrationDiff);
+                if (!isEmpty(migrationDiffInfo))
+                    getLogger().lifecycle(migrationDiffInfo);
 
-                    insertMigrationRecord(connection, schemaName, tableName, scriptName, scriptHash);
-                }
+                String migrationDiffErrors = migrationDiffErrors(migrationDiff);
+                if (!isEmpty(migrationDiffErrors))
+                    getLogger().error(migrationDiffErrors);
             }
-
         }
     }
 }
