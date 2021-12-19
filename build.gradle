@@ -16,7 +16,7 @@ tasks.withType(JavaCompile) {
     options.encoding ='UTF-8'
 }
 
-version = '1.0.0'
+version = '1.0.1'
 group = 'com.rshvets'
 
 gradlePlugin {

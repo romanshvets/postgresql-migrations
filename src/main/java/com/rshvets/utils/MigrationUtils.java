@@ -1,7 +1,7 @@
 package com.rshvets.utils;
 
 import com.rshvets.MigrationPluginExtension;
-import com.rshvets.MigrationPluginExtensionEntry;
+import com.rshvets.MigrationDatabaseDetails;
 import com.rshvets.model.MigrationDiff;
 import com.rshvets.model.MigrationRecord;
 import org.gradle.api.GradleException;
@@ -23,8 +23,8 @@ import static java.lang.String.format;
 
 public class MigrationUtils {
 
-    private static final Comparator<MigrationPluginExtensionEntry> DATABASES_CONFIG_COMPARATOR =
-            Comparator.comparingLong(MigrationPluginExtensionEntry::getOrder);
+    private static final Comparator<MigrationDatabaseDetails> DATABASES_CONFIG_COMPARATOR =
+            Comparator.comparingLong(MigrationDatabaseDetails::getOrder);
 
     public static boolean isEmpty(String v) {
         return v == null || v.length() == 0 || v.trim().length() == 0;
@@ -39,7 +39,7 @@ public class MigrationUtils {
                 project.getExtensions().getByName(MigrationPluginExtension.NAME);
     }
 
-    public static List<MigrationPluginExtensionEntry> getDBConfigs(Project project) {
+    public static List<MigrationDatabaseDetails> getDBConfigs(Project project) {
         MigrationPluginExtension extension = getExtension(project);
 
         extension.databases.sort(DATABASES_CONFIG_COMPARATOR);
@@ -52,7 +52,7 @@ public class MigrationUtils {
         return Arrays.asList(extension.scripts);
     }
 
-    public static boolean checkDatabasesConfig(Logger logger, List<MigrationPluginExtensionEntry> configs) {
+    public static boolean checkDatabasesConfig(Logger logger, List<MigrationDatabaseDetails> configs) {
         final boolean isEmpty = isEmpty(configs);
 
         if (isEmpty)

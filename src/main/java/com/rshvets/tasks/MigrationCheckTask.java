@@ -1,6 +1,6 @@
 package com.rshvets.tasks;
 
-import com.rshvets.MigrationPluginExtensionEntry;
+import com.rshvets.MigrationDatabaseDetails;
 import com.rshvets.model.MigrationDiff;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
@@ -14,12 +14,12 @@ public class MigrationCheckTask extends DefaultTask {
 
     @TaskAction
     public void run() throws Exception {
-        List<MigrationPluginExtensionEntry> dbConfigs = getDBConfigs(getProject());
+        List<MigrationDatabaseDetails> dbConfigs = getDBConfigs(getProject());
 
         if (!checkDatabasesConfig(getLogger(), dbConfigs))
             return;
 
-        for (final MigrationPluginExtensionEntry e : dbConfigs) {
+        for (final MigrationDatabaseDetails e : dbConfigs) {
             final String host = e.getConnectionHost();
             final Integer port = e.getConnectionPort();
             final String db = e.getDb();

@@ -1,6 +1,6 @@
 package com.rshvets;
 
-public class MigrationPluginExtensionEntry {
+public class MigrationDatabaseDetails {
 
     private final String name;
     private final Integer order;
@@ -14,9 +14,9 @@ public class MigrationPluginExtensionEntry {
     private final String user;
     private final String password;
 
-    public MigrationPluginExtensionEntry(String name, Integer order, String migrationSchema,
-                                         String migrationTable, String connectionHost,
-                                         Integer connectionPort, String db, String user, String password) {
+    public MigrationDatabaseDetails(String name, Integer order, String migrationSchema,
+                                    String migrationTable, String connectionHost,
+                                    Integer connectionPort, String db, String user, String password) {
         this.name = name;
         this.order = order;
         this.migrationSchema = migrationSchema;

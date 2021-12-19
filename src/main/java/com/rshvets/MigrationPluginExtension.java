@@ -7,6 +7,6 @@ public class MigrationPluginExtension {
 
     public static final String NAME = "migrations";
 
-    public List<MigrationPluginExtensionEntry> databases;
+    public List<MigrationDatabaseDetails> databases;
     public File[] scripts;
 }
