@@ -54,7 +54,7 @@ migrations {
         }
 
         dev {
-            order = 1
+            order = 2
             migrationSchema = "public"
             migrationTable = "migrations"
             connectionHost = "localhost"
@@ -68,7 +68,7 @@ migrations {
 ```
 
 `(1)` - list of scripts to apply in `List<File>` format. Those scripts will be applied in the same order you provide them here  
-`(2)` - list of database details. 'Test' and 'dev' configurations are provided as example
+`(2)` - list of database details. `test` and `dev` configurations are provided as example
 
 ## Ok, I configured. What's next? 
 You can run any of three tasks:
