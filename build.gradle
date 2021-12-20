@@ -16,13 +16,13 @@ tasks.withType(JavaCompile) {
     options.encoding ='UTF-8'
 }
 
-version = '1.0.1'
-group = 'com.rshvets'
+version = '1.0.0'
+group = 'io.github.romanshvets'
 
 gradlePlugin {
     plugins {
         pgMigrations {
-            id = 'com.rshvets.postgresql-migrations'
+            id = 'io.github.romanshvets.postgresql-migrations'
             implementationClass = 'com.rshvets.MigrationPlugin'
         }
     }
