@@ -1,7 +1,7 @@
 package com.rshvets.utils;
 
-import com.rshvets.MigrationPluginExtension;
 import com.rshvets.MigrationDatabaseDetails;
+import com.rshvets.MigrationPluginExtension;
 import com.rshvets.model.MigrationDiff;
 import com.rshvets.model.MigrationRecord;
 import org.gradle.api.GradleException;
@@ -24,7 +24,7 @@ import static java.lang.String.format;
 public class MigrationUtils {
 
     private static final Comparator<MigrationDatabaseDetails> DATABASES_CONFIG_COMPARATOR =
-            Comparator.comparingLong(MigrationDatabaseDetails::getOrder);
+            Comparator.comparingLong(e -> e.order);
 
     public static boolean isEmpty(String v) {
         return v == null || v.length() == 0 || v.trim().length() == 0;
@@ -42,14 +42,15 @@ public class MigrationUtils {
     public static List<MigrationDatabaseDetails> getDBConfigs(Project project) {
         MigrationPluginExtension extension = getExtension(project);
 
-        extension.databases.sort(DATABASES_CONFIG_COMPARATOR);
-        return extension.databases;
+        return extension.getDatabases()
+                .stream()
+                .sorted(DATABASES_CONFIG_COMPARATOR)
+                .collect(Collectors.toList());
     }
 
     public static List<File> getScripts(Project project) {
         MigrationPluginExtension extension = getExtension(project);
-
-        return Arrays.asList(extension.scripts);
+        return extension.getScripts().get();
     }
 
     public static boolean checkDatabasesConfig(Logger logger, List<MigrationDatabaseDetails> configs) {
@@ -279,11 +280,12 @@ public class MigrationUtils {
                     .noneMatch(fn -> Objects.equals(migrationScriptName, fn));
         }).collect(Collectors.toList());
 
-        Map<MigrationRecord, File> matchedRecordsWithScripts = new HashMap<>();
-        Map<MigrationRecord, File> unmatchedRecordsWithScripts = new HashMap<>();
+        List<MigrationDiff.MigrationRecord2Script> matchedRecordsWithScripts = new LinkedList<>();
+        List<MigrationDiff.MigrationRecord2Script> unmatchedRecordsWithScripts = new LinkedList<>();
 
-        filesHashes.forEach((file, hash) -> {
-            String scriptName = file.getName();
+        scripts.forEach(script -> {
+            String scriptName = script.getName();
+            String scriptHash = filesHashes.get(script);
 
             MigrationRecord record = allMigrationRecords.stream()
                     .filter(r -> Objects.equals(r.getScriptName(), scriptName))
@@ -292,10 +294,13 @@ public class MigrationUtils {
             if (record == null)
                 return;
 
-            if (Objects.equals(record.getScriptHash(), hash)) {
-                matchedRecordsWithScripts.put(record, file);
+            MigrationDiff.MigrationRecord2Script record2Script =
+                    new MigrationDiff.MigrationRecord2Script(record, script);
+
+            if (Objects.equals(record.getScriptHash(), scriptHash)) {
+                matchedRecordsWithScripts.add(record2Script);
             } else {
-                unmatchedRecordsWithScripts.put(record, file);
+                unmatchedRecordsWithScripts.add(record2Script);
             }
         });
 
@@ -304,10 +309,13 @@ public class MigrationUtils {
     }
 
     public static boolean anyMigrationError(MigrationDiff diff) {
-        List<MigrationRecord> recordsWithoutScripts = diff.getRecordsWithoutScripts();
-        Map<MigrationRecord, File> unmatchedRecordsWithScripts = diff.getUnmatchedRecordsWithScripts();
+        List<MigrationRecord> recordsWithoutScripts =
+                diff.getRecordsWithoutScripts();
 
-        return !isEmpty(recordsWithoutScripts) || !isEmpty(unmatchedRecordsWithScripts.entrySet());
+        List<MigrationDiff.MigrationRecord2Script> unmatchedRecordsWithScripts =
+                diff.getUnmatchedRecordsWithScripts();
+
+        return !isEmpty(recordsWithoutScripts) || !isEmpty(unmatchedRecordsWithScripts);
     }
 
     public static boolean anyNewScriptsToApply(MigrationDiff diff) {
@@ -316,22 +324,25 @@ public class MigrationUtils {
     }
 
     public static void showProcessingMessage(Logger logger, String name, String db, String host, Integer port) {
-        logger.lifecycle(String.format("Processing '%s' database [%s on %s:%s]", name, db, host, port));
+        logger.lifecycle(String.format("\nProcessing '%s' database [%s on %s:%s]", name, db, host, port));
     }
 
     public static String migrationDiffInfo(MigrationDiff diff) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("\n").append("Already applied following scripts:");
-        Map<MigrationRecord, File> matchedRecordsWithScripts = diff.getMatchedRecordsWithScripts();
+
+        List<MigrationDiff.MigrationRecord2Script> matchedRecordsWithScripts =
+                diff.getMatchedRecordsWithScripts();
+
         if (matchedRecordsWithScripts.isEmpty()) {
             sb.append(" none");
         } else {
             sb.append("\n");
 
-            for (MigrationRecord record : matchedRecordsWithScripts.keySet()) {
-                sb.append("* ").append(record.getScriptName()).append("\n");
-            }
+            matchedRecordsWithScripts.stream()
+                    .map(MigrationDiff.MigrationRecord2Script::getRecord)
+                    .forEach(r -> sb.append("* ").append(r.getScriptName()).append("\n"));
         }
 
         sb.append("\n").append("Scripts to be applied:");
@@ -353,14 +364,15 @@ public class MigrationUtils {
     public static String migrationDiffErrors(MigrationDiff diff) {
         StringBuilder sb = new StringBuilder();
 
-        Map<MigrationRecord, File> unmatchedRecordsWithScripts = diff.getUnmatchedRecordsWithScripts();
+        List<MigrationDiff.MigrationRecord2Script> unmatchedRecordsWithScripts =
+                diff.getUnmatchedRecordsWithScripts();
 
         if (!unmatchedRecordsWithScripts.isEmpty()) {
             sb.append("\n").append("Hash mismatches in following scripts:").append("\n");
 
-            for (MigrationRecord record : unmatchedRecordsWithScripts.keySet()) {
-                sb.append("* ").append(record.getScriptName()).append("\n");
-            }
+            unmatchedRecordsWithScripts.stream()
+                    .map(MigrationDiff.MigrationRecord2Script::getRecord)
+                    .forEach(r -> sb.append("* ").append(r.getScriptName()).append("\n"));
         }
 
         List<MigrationRecord> recordsWithoutScripts = diff.getRecordsWithoutScripts();

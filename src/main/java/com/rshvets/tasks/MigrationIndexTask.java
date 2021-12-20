@@ -20,17 +20,17 @@ public class MigrationIndexTask extends DefaultTask {
             return;
 
         for (final MigrationDatabaseDetails e : dbConfigs) {
-            final String host = e.getConnectionHost();
-            final Integer port = e.getConnectionPort();
-            final String db = e.getDb();
-            final String user = e.getUser();
-            final String password = e.getPassword();
+            final String host = e.connectionHost;
+            final Integer port = e.connectionPort;
+            final String db = e.dbName;
+            final String user = e.user;
+            final String password = e.password;
 
             try (Connection connection = acquireConnection(getLogger(), host, port, db, user, password)) {
-                showProcessingMessage(getLogger(), e.getName(), db, host, port);
+                showProcessingMessage(getLogger(), e.name, db, host, port);
 
-                final String schemaName = e.getMigrationSchema();
-                final String tableName = e.getMigrationTable();
+                final String schemaName = e.migrationSchema;
+                final String tableName = e.migrationTable;
 
                 if (!checkMigrationSchema(getLogger(), connection, schemaName, true))
                     return;

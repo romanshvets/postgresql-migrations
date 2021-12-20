@@ -1,12 +1,15 @@
 package com.rshvets;
 
-import java.io.File;
-import java.util.List;
+import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.provider.ListProperty;
 
-public class MigrationPluginExtension {
+import java.io.File;
+
+public interface MigrationPluginExtension {
 
     public static final String NAME = "migrations";
 
-    public List<MigrationDatabaseDetails> databases;
-    public File[] scripts;
+    NamedDomainObjectContainer<MigrationDatabaseDetails> getDatabases();
+
+    ListProperty<File> getScripts();
 }

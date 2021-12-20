@@ -25,17 +25,17 @@ public class MigrationApplyTask extends DefaultTask {
             return;
 
         for (final MigrationDatabaseDetails e : dbConfigs) {
-            final String host = e.getConnectionHost();
-            final Integer port = e.getConnectionPort();
-            final String db = e.getDb();
-            final String user = e.getUser();
-            final String password = e.getPassword();
+            final String host = e.connectionHost;
+            final Integer port = e.connectionPort;
+            final String db = e.dbName;
+            final String user = e.user;
+            final String password = e.password;
 
             try (Connection connection = acquireConnection(getLogger(), host, port, db, user, password)) {
-                showProcessingMessage(getLogger(), e.getName(), db, host, port);
+                showProcessingMessage(getLogger(), e.name, db, host, port);
 
-                final String schemaName = e.getMigrationSchema();
-                final String tableName = e.getMigrationTable();
+                final String schemaName = e.migrationSchema;
+                final String tableName = e.migrationTable;
 
                 if (!checkMigrationSchema(getLogger(), connection, schemaName, true))
                     return;
@@ -60,8 +60,8 @@ public class MigrationApplyTask extends DefaultTask {
                 getLogger().lifecycle(format("Applying %s %s to %s on %s:%s",
                         scriptsToApply.size(), scriptsToApply.size() == 1 ? "script" : "scripts", db, host, port));
 
-                String connectionURL = format("postgresql://%s:%s@%s:%s/%s", e.getUser(), e.getPassword(),
-                        e.getConnectionHost(), e.getConnectionPort(), e.getDb());
+                String connectionURL = format("postgresql://%s:%s@%s:%s/%s", e.user, e.password,
+                        e.connectionHost, e.connectionPort, e.dbName);
 
                 for (File script : scriptsToApply) {
                     String fileParam = format("--file=%s", script.getPath());

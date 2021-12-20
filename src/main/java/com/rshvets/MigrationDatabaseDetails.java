@@ -2,65 +2,20 @@ package com.rshvets;
 
 public class MigrationDatabaseDetails {
 
-    private final String name;
-    private final Integer order;
+    public final String name;
 
-    private final String migrationSchema;
-    private final String migrationTable;
+    public Integer order;
 
-    private final String connectionHost;
-    private final Integer connectionPort;
-    private final String db;
-    private final String user;
-    private final String password;
+    public String migrationSchema;
+    public String migrationTable;
 
-    public MigrationDatabaseDetails(String name, Integer order, String migrationSchema,
-                                    String migrationTable, String connectionHost,
-                                    Integer connectionPort, String db, String user, String password) {
+    public String connectionHost;
+    public Integer connectionPort;
+    public String dbName;
+    public String user;
+    public String password;
+
+    public MigrationDatabaseDetails(final String name) {
         this.name = name;
-        this.order = order;
-        this.migrationSchema = migrationSchema;
-        this.migrationTable = migrationTable;
-        this.connectionHost = connectionHost;
-        this.connectionPort = connectionPort;
-        this.db = db;
-        this.user = user;
-        this.password = password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Integer getOrder() {
-        return order;
-    }
-
-    public String getMigrationSchema() {
-        return migrationSchema;
-    }
-
-    public String getMigrationTable() {
-        return migrationTable;
-    }
-
-    public String getConnectionHost() {
-        return connectionHost;
-    }
-
-    public Integer getConnectionPort() {
-        return connectionPort;
-    }
-
-    public String getDb() {
-        return db;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public String getPassword() {
-        return password;
     }
 }

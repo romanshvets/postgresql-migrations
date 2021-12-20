@@ -29,7 +29,7 @@ Add this to your build script
 
 ```groovy
 plugins {
-    id 'io.github.romanshvets.postgresql-migrations' version '1.0.0'
+    id "io.github.romanshvets.postgresql-migrations" version "1.0.2"
 }
 ```
 
@@ -39,44 +39,36 @@ You should add `migrations` closure with 2 properties
 
 ```groovy
 migrations {
-    databases = [                               (1)
-            buildDatabaseDetails()
-    ]
+    scripts = fileTree(dir: "scripts").sort()   (1)
 
-    scripts = buildScriptsList("scripts")       (2)
-}
-
-def buildDatabaseDetails() {                    (3)
-    def name = "Development database"
-    def order = 1
-    def migrationSchemaName = "public"
-    def migrationTableName = "migrations"
-    def host = "localhost"
-    def port = 5432
-    def db = "postgres"
-    def user = "admin"
-    def password = "password"
-
-    return new MigrationDatabaseDetails(name, order, migrationSchemaName, migrationTableName,
-            host, port, db, user, password)
-}
-
-def buildScriptsList(String dirName) {          (4)
-    def filter = new FileFilter() {
-        @Override
-        boolean accept(File f) {
-            return f.isFile() && f.canRead()
+    databases {                                 (2)
+        test {
+            order = 1
+            migrationSchema = "public"
+            migrationTable = "migrations"
+            connectionHost = "localhost"
+            connectionPort = 5432
+            dbName = "YOUR_DATABASE"
+            user = "YOUR_USER"
+            password = "YOUR_PASSWORD"
         }
-    }
 
-    return file(dirName).listFiles(filter)
+        dev {
+            order = 1
+            migrationSchema = "public"
+            migrationTable = "migrations"
+            connectionHost = "localhost"
+            connectionPort = 5432
+            dbName = "YOUR_DATABASE"
+            user = "YOUR_USER"
+            password = "YOUR_PASSWORD"
+        }
+    }       
 }
 ```
 
-`(1)` - list of database details in `List<MigrationDatabaseDetails>` format  
-`(2)` - list of scripts to apply in `File[]` format. Those scripts will be applied in the same order you provide them here  
-`(3)` - sample function for building `MigrationDatabaseDetails` object  
-`(4)` - sample function for building list of scripts
+`(1)` - list of scripts to apply in `List<File>` format. Those scripts will be applied in the same order you provide them here
+`(2)` - list of database details. 'Test' and 'dev' configurations are provided as example
 
 ## Ok, I configured. What's next? 
 You can run any of three tasks:
