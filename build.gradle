@@ -13,10 +13,13 @@ dependencies {
 }
 
 tasks.withType(JavaCompile) {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_1_8
+
     options.encoding ='UTF-8'
 }
 
-version = '1.0.0'
+version = '1.0.1'
 group = 'io.github.romanshvets'
 
 gradlePlugin {
