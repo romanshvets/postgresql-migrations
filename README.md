@@ -80,10 +80,10 @@ You can run any of three tasks:
 It's a table where plugin will insert records for keep tracking of applied scripts. It will be automatically created by either `applyMigration` or `indexMigration`  task. Structure is following:
 ```roomsql
 create table XXX.YYY (
-    id serial primary key,
-    script_name varchar(256) not null unique,
-    script_hash varchar(256) not null,
-    ts timestamp without time zone not null
+    id              serial primary key,
+    script_name     varchar(256)                not null unique,
+    script_hash     varchar(256)                not null,
+    ts              timestamp without time zone not null
 );
 ```
 where
