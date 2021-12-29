@@ -370,9 +370,21 @@ public class MigrationUtils {
         if (!unmatchedRecordsWithScripts.isEmpty()) {
             sb.append("\n").append("Hash mismatches in following scripts:").append("\n");
 
-            unmatchedRecordsWithScripts.stream()
-                    .map(MigrationDiff.MigrationRecord2Script::getRecord)
-                    .forEach(r -> sb.append("* ").append(r.getScriptName()).append("\n"));
+            unmatchedRecordsWithScripts.forEach(r -> {
+                String scriptName = r.getRecord().getScriptName();
+                String newFileHash = null;
+
+                try {
+                    newFileHash = getFileHash(r.getFile());
+                } catch (Exception e) {
+                    String message = format("Cannot get hash of file %s", r.getFile().getName());
+                    throw new GradleException(message, e);
+                }
+
+                String oldFileHash = r.getRecord().getScriptHash();
+
+                sb.append(format("* %s. Was: %s but now is %s", scriptName, oldFileHash, newFileHash)).append("\n");
+            });
         }
 
         List<MigrationRecord> recordsWithoutScripts = diff.getRecordsWithoutScripts();
