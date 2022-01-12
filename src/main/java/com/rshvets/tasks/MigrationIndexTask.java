@@ -1,52 +1,32 @@
 package com.rshvets.tasks;
 
-import com.rshvets.MigrationDatabaseDetails;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.logging.Logger;
 
 import java.io.File;
 import java.sql.Connection;
-import java.util.List;
 
 import static com.rshvets.utils.MigrationUtils.*;
 
-public class MigrationIndexTask extends DefaultTask {
+public class MigrationIndexTask extends MigrationBaseTask {
 
-    @TaskAction
-    public void run() throws Exception {
-        List<MigrationDatabaseDetails> dbConfigs = getDBConfigs(getProject());
+    @Override
+    protected void processDatabase(Logger logger, Connection connection,
+                                   String host, Integer port, String dbName, String user, String password,
+                                   String migrationSchema, String migrationTable) throws Exception {
 
-        if (!checkDatabasesConfig(getLogger(), dbConfigs))
+        if (!checkMigrationSchema(logger, connection, migrationSchema, true))
             return;
 
-        for (final MigrationDatabaseDetails e : dbConfigs) {
-            final String host = e.connectionHost;
-            final Integer port = e.connectionPort;
-            final String db = e.dbName;
-            final String user = e.user;
-            final String password = e.password;
+        if (!checkMigrationTable(logger, connection, migrationSchema, migrationTable, true))
+            return;
 
-            try (Connection connection = acquireConnection(getLogger(), host, port, db, user, password)) {
-                showProcessingMessage(getLogger(), e.name, db, host, port);
+        cleanMigrationTable(connection, migrationSchema, migrationTable);
 
-                final String schemaName = e.migrationSchema;
-                final String tableName = e.migrationTable;
+        for (File f : getScripts(getProject())) {
+            String scriptName = f.getName();
+            String scriptHash = getFileHash(f);
 
-                if (!checkMigrationSchema(getLogger(), connection, schemaName, true))
-                    return;
-
-                if (!checkMigrationTable(getLogger(), connection, schemaName, tableName, true))
-                    return;
-
-                cleanMigrationTable(connection, schemaName, tableName);
-
-                for (File f : getScripts(getProject())) {
-                    String scriptName = f.getName();
-                    String scriptHash = getFileHash(f);
-
-                    insertMigrationRecord(connection, schemaName, tableName, scriptName, scriptHash);
-                }
-            }
+            insertMigrationRecord(connection, migrationSchema, migrationTable, scriptName, scriptHash);
         }
     }
 }

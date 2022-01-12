@@ -1,53 +1,34 @@
 package com.rshvets.tasks;
 
-import com.rshvets.MigrationDatabaseDetails;
 import com.rshvets.model.MigrationDiff;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.logging.Logger;
 
 import java.sql.Connection;
-import java.util.List;
 
 import static com.rshvets.utils.MigrationUtils.*;
 
-public class MigrationCheckTask extends DefaultTask {
+public class MigrationCheckTask extends MigrationBaseTask {
 
-    @TaskAction
-    public void run() throws Exception {
-        List<MigrationDatabaseDetails> dbConfigs = getDBConfigs(getProject());
+    @Override
+    protected void processDatabase(Logger logger, Connection connection,
+                                   String host, Integer port, String dbName, String user, String password,
+                                   String migrationSchema, String migrationTable) throws Exception {
 
-        if (!checkDatabasesConfig(getLogger(), dbConfigs))
+        if (!checkMigrationSchema(logger, connection, migrationSchema, false))
             return;
 
-        for (final MigrationDatabaseDetails e : dbConfigs) {
-            final String host = e.connectionHost;
-            final Integer port = e.connectionPort;
-            final String db = e.dbName;
-            final String user = e.user;
-            final String password = e.password;
+        if (!checkMigrationTable(logger, connection, migrationSchema, migrationTable, false))
+            return;
 
-            try (Connection connection = acquireConnection(getLogger(), host, port, db, user, password)) {
-                showProcessingMessage(getLogger(), e.name, db, host, port);
+        MigrationDiff migrationDiff = getMigrationsDiff(connection, migrationSchema, migrationTable, getScripts(getProject()));
 
-                final String schemaName = e.migrationSchema;
-                final String tableName = e.migrationTable;
+        String migrationDiffInfo = migrationDiffInfo(migrationDiff);
 
-                if (!checkMigrationSchema(getLogger(), connection, schemaName, false))
-                    return;
+        if (!isEmpty(migrationDiffInfo))
+            logger.lifecycle(migrationDiffInfo);
 
-                if (!checkMigrationTable(getLogger(), connection, schemaName, tableName, false))
-                    return;
-
-                MigrationDiff migrationDiff = getMigrationsDiff(connection, schemaName, tableName, getScripts(getProject()));
-
-                String migrationDiffInfo = migrationDiffInfo(migrationDiff);
-                if (!isEmpty(migrationDiffInfo))
-                    getLogger().lifecycle(migrationDiffInfo);
-
-                String migrationDiffErrors = migrationDiffErrors(migrationDiff);
-                if (!isEmpty(migrationDiffErrors))
-                    getLogger().error(migrationDiffErrors);
-            }
-        }
+        String migrationDiffErrors = migrationDiffErrors(migrationDiff);
+        if (!isEmpty(migrationDiffErrors))
+            logger.error(migrationDiffErrors);
     }
 }
