@@ -7,6 +7,7 @@ import org.gradle.api.logging.Logger;
 import java.io.File;
 import java.sql.Connection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,20 +52,18 @@ public class MigrationApplyTask extends MigrationBaseTask {
             Process process = builder.start();
 
             Optional<String> error = readStream(process.getErrorStream());
-            if (error.isPresent()) {
-                logger.error("Failed to apply script " + script.getName());
-                logger.error(error.get());
-                return;
-            }
 
             int resultCode = process.waitFor();
             Date end = new Date();
             if (resultCode != 0) {
-                String command = String.join(" ", builder.command());
-                String message = format("Command \"%s\" failed with exit code %s",
-                        command, resultCode);
+                List<String> errorMessages = new LinkedList<>();
+                errorMessages.add("Failed to apply script " + script.getName());
+                error.ifPresent(errorMessages::add);
 
-                logger.error(message);
+                String command = String.join(" ", builder.command());
+                errorMessages.add(format("Command \"%s\" failed with exit code %s", command, resultCode));
+
+                errorMessages.forEach(logger::error);
                 return;
             }
 
