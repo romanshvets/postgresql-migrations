@@ -52,6 +52,11 @@ public class MigrationApplyTask extends MigrationBaseTask {
             Process process = builder.start();
 
             Optional<String> error = readStream(process.getErrorStream());
+            if (error.isPresent()) {
+                logger.error("Failed to apply script " + script.getName());
+                logger.error(error.get());
+                return;
+            }
 
             int resultCode = process.waitFor();
             Date end = new Date();
