@@ -29,7 +29,7 @@ Add this to your build script
 
 ```groovy
 plugins {
-    id "io.github.romanshvets.postgresql-migrations" version "1.0.5"
+    id "io.github.romanshvets.postgresql-migrations" version "1.0.6"
 }
 ```
 
